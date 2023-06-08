@@ -1,0 +1,10 @@
+2023/06/05 13:14:26 error: open /path/to/config.toml: The system cannot find the path specified.
+can't open configuration file
+main.readConfig
+	c:/Users/jackh/Dropbox/ITU DTU courses/Distributed Systems/go-essential-training-2446262/Ch05_Error/05_01_StackTrace/errors.go:20
+main.main
+	c:/Users/jackh/Dropbox/ITU DTU courses/Distributed Systems/go-essential-training-2446262/Ch05_Error/05_01_StackTrace/errors.go:40
+runtime.main
+	C:/Program Files/Go/src/runtime/proc.go:250
+runtime.goexit
+	C:/Program Files/Go/src/runtime/asm_amd64.s:1598
