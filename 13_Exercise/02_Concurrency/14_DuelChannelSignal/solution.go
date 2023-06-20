@@ -11,14 +11,15 @@ import (
 // Assumptions:
 // - once a certain amount of orders is fulfilled, the coffee shop closes
 // - do not care about which customer has ordered which coffee
-// - not maintain any coffee types; all orders represented by empty struct, i.e. struct{}
+// - not maintain coffee types; all orders represented by empty struct, i.e. struct{}
 
 // setup constants
-const baristaCount = 3
-const customerCount = 6
-const maxOrderCount = 20
+const baristaCount = 3  // producers
+const customerCount = 6 // consumers
 
 // the total amount of drinks that the bartenders have made
+const maxOrderCount = 20
+
 type coffeeShop struct {
 	orderCount int
 	orderLock  sync.Mutex // mutux
@@ -29,14 +30,14 @@ type coffeeShop struct {
 }
 
 // registerOrder ensures that the order made by the baristas is counted
-// once the orderCount reaches maxOrderCount, the shop is closed
+// once orderCount reaches maxOrderCount, the shop is closed
 func (p *coffeeShop) registerOrder() {
 	p.orderLock.Lock()
 	defer p.orderLock.Unlock()
 	p.orderCount++
 	if p.orderCount == maxOrderCount {
 		// when channel is closed, all receivers of the channel
-		// will receive a zero value of the channel type, i.e. an empty struct{}
+		// will receive a zero value of the channel type, i.e. empty struct{}
 		// i.e. any goroutine that is blocked while trying to read from this channel
 		// will immediately proceed once the channel is closed
 		close(p.closeShop) // close the signal channel
@@ -78,7 +79,7 @@ func main() {
 
 	orderCoffee := make(chan struct{}, baristaCount)
 	finishCoffee := make(chan struct{}, baristaCount)
-	closeShop := make(chan struct{}) // signal channel for closing the shop, unbuffered
+	closeShop := make(chan struct{}) // abort channel, unbuffered
 
 	p := coffeeShop{
 		orderCoffee:  orderCoffee,
@@ -94,10 +95,10 @@ func main() {
 		go p.customer(fmt.Sprint("Customer-", i))
 	}
 
-	// this line is serving as a blocking point that
-	// prevents the main goroutine from terminating and closing the program prematurely
-	// When the closeShop channel is closed, this line will receive the zero value,
-	// and the main function can continue to its end, effectively closing the application.
+	// blocking point prevents the main goroutine from terminating
+	// and closing the program prematurely
+	// When closeShop channel is closed, this line will receive zero value,
+	// and main function can continue to its end, closing the app.
 	<-closeShop
 	log.Println("The coffee shop has closed! Bye!")
 }

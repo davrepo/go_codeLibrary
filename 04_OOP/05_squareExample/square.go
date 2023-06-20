@@ -41,7 +41,7 @@ func (s Square) Area() int {
 func main() {
 	s, err := NewSquare(1, 1, 10)
 	if err != nil {
-		log.Fatalf("ERROR: can't create square")
+		log.Fatalf("ERROR: can't create square") // log.Fatalf() - print error and exit
 	}
 
 	s.Move(2, 3)

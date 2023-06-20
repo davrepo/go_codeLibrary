@@ -20,12 +20,22 @@ func main() {
 	fmt.Println("Main ready!")
 	for {
 		select {
-		case gr := <-ch:
-			printGreeting(gr)
-		case gr2 := <-ch2:
-			printGreeting(gr2)
+		case gr, ok := <-ch:
+			if !ok {
+				ch = nil
+			} else {
+				printGreeting(gr)
+			}
+		case gr2, ok := <-ch2:
+			if !ok {
+				ch2 = nil
+			} else {
+				printGreeting(gr2)
+			}
 		default:
-			return
+			if ch == nil && ch2 == nil {
+				return
+			}
 		}
 	}
 }
