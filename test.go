@@ -2,11 +2,15 @@ package main
 
 import (
 	"fmt"
-	"time"
+	"net/http"
 )
 
+func Hello(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello, world!")
+}
+
 func main() {
-	month := time.Date(2021, 2, 1, 0, 0, 0, 0, time.UTC)
-	fmt.Println(month)
-	// 2021/04/30 17:53:15 GOT: {Time:2021-04-30 17:53:14.437272 +0300 IDT CPU:0.23 Memory:87.32}
+	http.HandleFunc("/hello", Hello)
+	fmt.Println("Listening on port 8080...")
+	http.ListenAndServe(":8080", nil)
 }

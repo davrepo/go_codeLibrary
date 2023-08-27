@@ -27,7 +27,7 @@ var defaultBid = Bid{
 }
 
 func findBid(ctx context.Context, url string) Bid {
-	ch := make(chan Bid) // buffered to avoid goroutine leak
+	ch := make(chan Bid, 1) // buffered to avoid goroutine leak
 	go func() {
 		ch <- bestBid(url)
 	}()
