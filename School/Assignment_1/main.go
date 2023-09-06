@@ -40,36 +40,38 @@ type Philosopher struct {
 
 func (c *Chopsticks) manage() {
 	for {
-		<-c.ch // Wait for a philosopher to *request* the chopstick
-		<-c.ch // Wait for a philosopher to *release* the chopstick
+		// Signal that the chopstick is available
+		c.ch <- 1
+		<-c.ch // Wait for a philosopher to send a signal that it's done eating
 	}
 }
 
 func (p *Philosopher) eat(c1, c2 *Chopsticks, wg *sync.WaitGroup) {
 	defer wg.Done()
-	for i := 0; i < NUMBER_OF_TIME_EAT; i++ {
-		// introduce asymmetry, make Philosopher 0 pick up the right chopstick first
-		// while all other philosophers pick up the left chopstick first,
-		if p.number == 0 {
-			c2.ch <- 1
-			c1.ch <- 1
-		} else {
-			c1.ch <- 1
-			c2.ch <- 1
-		}
-		p.state = EATING
-		fmt.Printf("starting to eat %d\n", p.number+1)
-		p.ch <- p.number // how to get out of that channel??
-		p.state = THINKING
-		fmt.Printf("finishing eating, now thinking %d\n", p.number+1)
+
+	// introduce asymmetry, make Philosopher 0 pick up the right chopstick first
+	// while all other philosophers pick up the left chopstick first, a way to avoid deadlock
+	// Try to acquire both chopsticks
+	if p.number == 0 {
+		<-c2.ch
+		<-c1.ch
+	} else {
 		<-c1.ch
 		<-c2.ch
 	}
+	p.state = EATING
+	fmt.Printf("Philosopher %d is eating.\n", p.number+1)
+
+	// Release both chopsticks
+	c1.ch <- 1
+	c2.ch <- 1
+
+	p.state = THINKING
+	fmt.Printf("Philosopher %d has finished eating and is now thinking.\n", p.number+1)
 }
 
 func main() {
 	var wg sync.WaitGroup
-	wg.Add(NUMBER_OF_PHILOSOPHERS)
 
 	chopsticks := make([]*Chopsticks, NUMBER_OF_CHOPSTICKS)
 	for i := 0; i < NUMBER_OF_CHOPSTICKS; i++ {
@@ -79,10 +81,7 @@ func main() {
 			ch:     c,
 		}
 		chopsticks[i] = chopstick
-	}
-
-	for i := 0; i < NUMBER_OF_CHOPSTICKS; i++ {
-		go chopsticks[i].manage()
+		go chopstick.manage()
 	}
 
 	for i := 0; i < NUMBER_OF_PHILOSOPHERS; i++ {
@@ -92,7 +91,11 @@ func main() {
 			state:  THINKING,
 			ch:     c,
 		}
-		go philosopher.eat(chopsticks[i], chopsticks[(i+1)%NUMBER_OF_CHOPSTICKS], &wg)
+
+		for j := 0; j < NUMBER_OF_TIME_EAT; j++ {
+			wg.Add(1)
+			go philosopher.eat(chopsticks[i], chopsticks[(i+1)%NUMBER_OF_CHOPSTICKS], &wg)
+		}
 	}
 
 	wg.Wait()
