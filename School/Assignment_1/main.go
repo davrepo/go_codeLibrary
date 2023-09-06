@@ -6,7 +6,7 @@ import (
 )
 
 // Dining Philosophers - 5 philosophers.
-// state: either eat, or not eat
+// state: either EAT or THINK
 // must use 2 chopsticks to eat
 // b/c there are only 5 chopsticks, only 2 philosophers can eat at a time
 // can eat unlimited times per philosopher
@@ -40,9 +40,8 @@ type Philosopher struct {
 
 func (c *Chopsticks) manage() {
 	for {
-		// Signal that the chopstick is available
-		c.ch <- 1
-		<-c.ch // Wait for a philosopher to send a signal that it's done eating
+		c.ch <- 1 // Send a signal that the chopstick is available
+		<-c.ch    // Wait for a philosopher to send a signal that it's done eating
 	}
 }
 
@@ -50,7 +49,7 @@ func (p *Philosopher) eat(c1, c2 *Chopsticks, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	// introduce asymmetry, make Philosopher 0 pick up the right chopstick first
-	// while all other philosophers pick up the left chopstick first, a way to avoid deadlock
+	// while all other philosophers pick up the left chopstick first, to avoid deadlock
 	// Try to acquire both chopsticks
 	if p.number == 0 {
 		<-c2.ch
