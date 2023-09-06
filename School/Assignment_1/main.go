@@ -9,13 +9,12 @@ import (
 // state: either EAT or THINK
 // must use 2 chopsticks to eat
 // b/c there are only 5 chopsticks, only 2 philosophers can eat at a time
-// can eat unlimited times per philosopher
 // avoid deadlock in code
 
 // specification:
-// - each fork must have its own thread (goroutine)
+// - each chopstick must have its own thread (goroutine)
 // - each philosopher must have its own thread (goroutine)
-// - philosophers and forks must communicate with each other *only* by using channels
+// - philosophers and chopsticks must communicate with each other *only* by using channels
 // - each philosopher must eat at least 3 times, no deadlock allowed / *comment* in code why the system does not deadlock
 // - philosophers must display (print on screen) any state change (eating or thinking) during their execution.
 
