@@ -6,5 +6,4 @@ use (
 	./Database_Backend/practice
 	./Order_Database_Backend
 	./grpc-go\\examples
-	./grpc-in-go-4400430
 )
