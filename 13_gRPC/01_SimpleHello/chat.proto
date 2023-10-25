@@ -1,0 +1,12 @@
+syntax = "proto3";
+package chat;
+
+option go_package = "./chat"; // Relative path to your 'chat' folder
+
+message Message {
+  string body = 1; // body = 1 means that this is the first field in the message
+}
+
+service ChatService {
+  rpc SendMessage(Message) returns (Message); // SendMessage takes a Message and returns a Message
+}
